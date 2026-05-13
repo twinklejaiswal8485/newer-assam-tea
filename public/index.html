@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASSAM TEA - Premium Indian Tea</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="chai-tea.png">
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Reset scroll position on page reload -->
+    <script>
+        history.scrollRestoration = 'manual';
+        window.addEventListener('beforeunload', () => {
+            window.scrollTo(0, 0);
+        });
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+        });
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #030303;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #030303;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.8s ease;
+        }
+        
+        .loading-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            color: #F59E0B;
+            margin-bottom: 40px;
+            letter-spacing: 0.1em;
+        }
+        
+        .loading-progress {
+            width: 200px;
+            height: 2px;
+            background: rgba(245, 158, 11, 0.2);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .loading-progress-fill {
+            height: 100%;
+            background: #F59E0B;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .loading-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.05em;
+        }
+        
+        /* Fixed Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 200;
+            background: transparent;
+            border: none;
+        }
+        
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 15px;
+            color: #F59E0B;
+            letter-spacing: 0.25em;
+            font-weight: 400;
+        }
+        
+        .shop-link {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .shop-link:hover {
+            color: #F59E0B;
+        }
+        
+        /* Scroll Progress Bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 2px;
+            height: 100%;
+            background: rgba(245, 158, 11, 0.15);
+            z-index: 100;
+        }
+        
+        #scroll-progress-fill {
+            width: 100%;
+            height: 0%;
+            background: rgba(245, 158, 11, 0.8);
+            transition: height 0.1s ease;
+        }
+        
+        /* Hero Section with Video */
+        #hero {
+            height: 800vh;
+            position: relative;
+        }
+        
+        #video-container {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #030303;
+        }
+        
+        #video-canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Text Overlays */
+        .text-overlay {
+            position: absolute;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        #text-1 {
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 120px;
+            color: rgba(245, 158, 11, 0.9);
+            letter-spacing: 0.1em;
+            text-align: center;
+            opacity: 0;
+            white-space: nowrap;
+        }
+        
+        #text-2 {
+            left: 8%;
+            bottom: 15%;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 42px;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 600px;
+            opacity: 0;
+        }
+        
+        #text-2 span {
+            display: inline-block;
+            opacity: 0;
+        }
+        
+        /* Product Cards Section */
+        #products {
+            padding: 120px 40px;
+            background: linear-gradient(to bottom, #030303, #050510);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 64px;
+            color: #F59E0B;
+            text-align: center;
+            margin-bottom: 80px;
+            letter-spacing: 0.2em;
+        }
+        
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: linear-gradient(160deg, #050510, #0a0a1a);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                        box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            height: 650px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        
+        .card-category {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #F59E0B;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        
+        .card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            color: #ffffff;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .card-description {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        
+        .card-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            color: #F59E0B;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .card-button {
+            background: transparent;
+            border: 1px solid rgba(245, 158, 11, 0.6);
+            color: #F59E0B;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .card-button:hover {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: #F59E0B;
+            transform: translateY(-2px);
+        }
+        
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border-radius: 8px;
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-image-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, 
+                rgba(5, 5, 16, 0.8) 0%, 
+                rgba(5, 5, 16, 0.6) 50%, 
+                rgba(5, 5, 16, 0) 100%);
+            pointer-events: none;
+        }
+        
+        /* Newsletter Section */
+        #newsletter {
+            padding: 120px 40px;
+            background-image: linear-gradient(to bottom, 
+                rgba(3,3,3,0.88) 0%, 
+                rgba(3,3,3,0.60) 35%, 
+                rgba(3,3,3,0.65) 65%, 
+                rgba(3,3,3,0.95) 100%),
+                url('https://images.unsplash.com/photo-1576092768241-dec23115179d?w=1920&h=1080&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            text-align: center;
+        }
+        
+        .newsletter-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 52px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            letter-spacing: 0.1em;
+        }
+        
+        .newsletter-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 60px;
+            letter-spacing: 0.05em;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .email-input {
+            width: 320px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #F59E0B;
+            padding: 12px 0;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .email-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .email-input:focus {
+            border-color: #F59E0B;
+        }
+        
+        .submit-btn {
+            background: transparent;
+            border: none;
+            color: #F59E0B;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            padding: 8px 0;
+            transition: text-decoration 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        #footer {
+            padding: 40px;
+            border-top: 1px solid rgba(245, 158, 11, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: #F59E0B;
+            letter-spacing: 0.1em;
+        }
+        
+        .footer-copyright {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.05em;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .social-link {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: text-decoration 0.3s ease, color 0.3s ease;
+        }
+        
+        .social-link:hover {
+            color: #F59E0B;
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            #header {
+                padding: 0 20px;
+            }
+            
+            .logo {
+                font-size: 12px;
+            }
+            
+            .shop-link {
+                font-size: 10px;
+            }
+            
+            #text-1 {
+                font-size: 48px;
+            }
+            
+            #text-2 {
+                font-size: 24px;
+                left: 5%;
+            }
+            
+            .section-title {
+                font-size: 36px;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+            }
+            
+            .newsletter-title {
+                font-size: 32px;
+            }
+            
+            #footer {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-title">ASSAM TEA</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="loading-text">Preparing Your Ritual...</div>
+    </div>
+
+    <!-- Fixed Header -->
+    <header id="header">
+        <div class="logo">ASSAM TEA</div>
+        <div class="shop-link">SHOP</div>
+    </header>
+
+    <!-- Scroll Progress Bar -->
+    <div id="scroll-progress">
+        <div id="scroll-progress-fill"></div>
+    </div>
+
+    <!-- Hero Section with Scroll-Driven Video -->
+    <section id="hero">
+        <div id="video-container">
+            <canvas id="video-canvas"></canvas>
+        </div>
+        
+        <!-- Text Overlays -->
+        <div class="text-overlay" id="text-1">ASSAM TEA</div>
+        <div class="text-overlay" id="text-2">
+            <span>A</span><span>single</span><span>bag.</span><span>Ancient</span><span>wisdom</span><span>inside.</span>
+        </div>
+    </section>
+
+    <!-- Product Cards Section -->
+    <section id="products">
+        <h2 class="section-title">OUR RITUALS</h2>
+        <div class="cards-container">
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="./DAWN1.png" alt="Morning Tea" class="card-image">
+                    <div class="card-image-gradient"></div>
+                </div>
+                <div class="card-category">DAWN</div>
+                <div class="card-title">Awakening Blend</div>
+                <div class="card-description">Black Tea. Ginger. Cardamom. Cinnamon. A bold start to your day, rooted in centuries of tradition.</div>
+                <div class="card-price">₹900</div>
+                <button class="card-button">Add to Ritual</button>
+            </div>
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="./DUSK.png" alt="Afternoon Tea" class="card-image">
+                    <div class="card-image-gradient"></div>
+                </div>
+                <div class="card-category">DUSK</div>
+                <div class="card-title">Clarity Blend</div>
+                <div class="card-description">Green Tea. Jasmine. Mint. Lemon. Perfect balance for moments of reflection and focus.</div>
+                <div class="card-price">₹990</div>
+                <button class="card-button">Add to Ritual</button>
+            </div>
+            <div class="card">
+                <div class="card-image-container">
+                    <img src="./NIGHT.png" alt="Night Tea" class="card-image">
+                    <div class="card-image-gradient"></div>
+                </div>
+                <div class="card-category">NIGHT</div>
+                <div class="card-title">Deep Rest Blend</div>
+                <div class="card-description">Ashwagandha. Rose. Lavender. White Tea. Gentle embrace for peaceful evenings.</div>
+                <div class="card-price">₹1050</div>
+                <button class="card-button">Add to Ritual</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section id="newsletter">
+        <h2 class="newsletter-title">Join the Ceremony.</h2>
+        <p class="newsletter-subtitle">Be the first to know. No noise. Only ritual.</p>
+        <form class="newsletter-form">
+            <input type="email" class="email-input" placeholder="Enter your email" required>
+            <button type="submit" class="submit-btn">BEGIN →</button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <div class="footer-logo">ASSAM TEA</div>
+        <div class="footer-copyright">© 2026 Assam Tea. Rooted in the hills.</div>
+        <div class="footer-social">
+            <a href="#" class="social-link">Instagram</a>
+            <a href="#" class="social-link">Youtube</a>
+        </div>
+    </footer>
+
+    <script>
+        // Video Frame Extraction and Scroll Control
+        class ScrollVideo {
+            constructor() {
+                this.canvas = document.getElementById('video-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.video = document.createElement('video');
+                this.video.src = './final chai video.mp4';
+                this.video.muted = true;
+                this.frames = [];
+                this.totalFrames = 0;
+                this.currentFrame = 0;
+                this.isLoading = true;
+                
+                this.init();
+            }
+            
+            init() {
+                // Set canvas size
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                // Load video and extract frames
+                this.video.addEventListener('loadedmetadata', () => {
+                    this.totalFrames = Math.floor(this.video.duration * 30); // Assume 30fps
+                    this.extractFrames();
+                });
+                
+                this.video.load();
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            async extractFrames() {
+                const progressFill = document.getElementById('progress-fill');
+                
+                for (let i = 0; i < this.totalFrames; i++) {
+                    const time = (i / this.totalFrames) * this.video.duration;
+                    this.video.currentTime = time;
+                    
+                    await new Promise(resolve => {
+                        this.video.addEventListener('seeked', () => {
+                            const tempCanvas = document.createElement('canvas');
+                            tempCanvas.width = this.video.videoWidth;
+                            tempCanvas.height = this.video.videoHeight;
+                            const tempCtx = tempCanvas.getContext('2d');
+                            tempCtx.drawImage(this.video, 0, 0);
+                            
+                            this.frames.push(tempCanvas);
+                            
+                            // Update loading progress
+                            const progress = ((i + 1) / this.totalFrames) * 100;
+                            progressFill.style.width = progress + '%';
+                            
+                            resolve();
+                        }, { once: true });
+                    });
+                }
+                
+                // Loading complete
+                setTimeout(() => {
+                    this.isLoading = false;
+                    this.hideLoadingScreen();
+                    this.setupScrollTrigger();
+                }, 500);
+            }
+            
+            hideLoadingScreen() {
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 800);
+            }
+            
+            setupScrollTrigger() {
+                // Update scroll progress bar
+                gsap.to('#scroll-progress-fill', {
+                    height: '100%',
+                    ease: 'none',
+                    scrollTrigger: {
+                        trigger: 'body',
+                        start: 'top top',
+                        end: 'bottom bottom',
+                        scrub: true
+                    }
+                });
+                
+                // Text overlay animations
+                gsap.timeline({
+                    scrollTrigger: {
+                        trigger: '#hero',
+                        start: '5% top',
+                        end: '15% top',
+                        scrub: true
+                    }
+                })
+                .to('#text-1', { opacity: 1, duration: 0.02 })
+                .to('#text-1', { opacity: 0, duration: 0.02 }, '>');
+                
+                // Word-by-word animation for text 2
+                const text2Spans = document.querySelectorAll('#text-2 span');
+                text2Spans.forEach((span, i) => {
+                    gsap.to(span, {
+                        opacity: 1,
+                        scrollTrigger: {
+                            trigger: '#hero',
+                            start: `${18 + i * 2}% top`,
+                            end: `${20 + i * 2}% top`,
+                            scrub: true
+                        }
+                    });
+                });
+                
+                // Video frame control
+                ScrollTrigger.create({
+                    trigger: '#hero',
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    scrub: true,
+                    onUpdate: (self) => {
+                        const progress = self.progress;
+                        this.currentFrame = Math.floor(progress * (this.totalFrames - 1));
+                        this.drawFrame();
+                    }
+                });
+            }
+            
+            drawFrame() {
+                if (this.frames[this.currentFrame]) {
+                    this.ctx.drawImage(this.frames[this.currentFrame], 0, 0, this.canvas.width, this.canvas.height);
+                }
+            }
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Reset scroll position to top on page reload
+            window.scrollTo(0, 0);
+            history.scrollRestoration = 'manual';
+            
+            new ScrollVideo();
+            
+            // Newsletter form submission
+            document.querySelector('.newsletter-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = e.target.querySelector('.email-input').value;
+                console.log('Newsletter signup:', email);
+                e.target.querySelector('.email-input').value = '';
+                // Show success message or handle submission
+            });
+            
+            // Shop link click
+            document.querySelector('.shop-link').addEventListener('click', () => {
+                console.log('Shop clicked');
+                // Handle shop navigation
+            });
+        });
+        
+        // Register GSAP plugins
+        gsap.registerPlugin(ScrollTrigger);
+    </script>
+</body>
+</html>
